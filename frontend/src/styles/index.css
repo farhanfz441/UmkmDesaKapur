@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input {
+    @apply w-full bg-white border border-border rounded-lg px-3 py-2.5 text-sm text-navy-dark placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-navy-light/20 focus:border-navy-light transition-all duration-200;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-navy hover:bg-navy-light text-white font-medium rounded-lg px-5 py-2.5 transition-all duration-200 cursor-pointer text-sm;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 bg-white hover:bg-surface-hover text-secondary border border-border rounded-lg px-5 py-2.5 transition-all duration-200 cursor-pointer text-sm;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 border-2 border-navy text-navy hover:bg-navy hover:text-white font-medium rounded-lg px-5 py-2.5 transition-all duration-200 cursor-pointer text-sm;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 text-muted hover:text-navy hover:bg-surface-hover rounded-lg px-4 py-2 transition-all duration-200 cursor-pointer text-sm;
+  }
+  .card {
+    @apply bg-white border border-border rounded-card shadow-soft;
+  }
+  .card-hover {
+    @apply bg-white border border-border rounded-card shadow-soft hover:shadow-card hover:border-border-dark transition-all duration-200;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+  .badge-green {
+    @apply badge bg-green/10 text-green;
+  }
+  .badge-orange {
+    @apply badge bg-orange/10 text-orange;
+  }
+  .badge-purple {
+    @apply badge bg-purple/10 text-purple;
+  }
+  .badge-pink {
+    @apply badge bg-pink/10 text-pink;
+  }
+  .badge-blue {
+    @apply badge bg-blue-light/10 text-blue-light;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-background text-secondary font-sans antialiased;
+}
+
+::selection {
+  background: rgba(30, 58, 138, 0.15);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
