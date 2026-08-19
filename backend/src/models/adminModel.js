@@ -1,27 +1,22 @@
-const { readDb, writeDb, nextId } = require('../config/jsonDb');
+const { query } = require('../config/db');
 
 const AdminModel = {
-  findByUsername(username) {
-    const db = readDb();
-    return db.admin.find((a) => a.username === username) || null;
+  async findByUsername(username) {
+    const { rows } = await query('SELECT * FROM admin WHERE username = $1', [username]);
+    return rows[0] || null;
   },
 
-  create({ username, password_hash }) {
-    const db = readDb();
-    const item = {
-      id: nextId(db, 'admin'),
-      username,
-      password_hash,
-      created_at: new Date().toISOString(),
-    };
-    db.admin.push(item);
-    writeDb(db);
-    return { id: item.id, username: item.username, created_at: item.created_at };
+  async create({ username, password_hash }) {
+    const { rows } = await query(
+      'INSERT INTO admin (username, password_hash) VALUES ($1, $2) RETURNING id, username, created_at',
+      [username, password_hash]
+    );
+    return rows[0];
   },
 
-  count() {
-    const db = readDb();
-    return db.admin.length;
+  async count() {
+    const { rows } = await query('SELECT COUNT(*)::int AS count FROM admin');
+    return rows[0].count;
   },
 };
 

@@ -4,7 +4,7 @@ const { validationResult } = require('express-validator');
 const AdminModel = require('../models/adminModel');
 
 const AuthController = {
-  login(req, res, next) {
+  async login(req, res, next) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -12,7 +12,7 @@ const AuthController = {
       }
 
       const { username, password } = req.body;
-      const admin = AdminModel.findByUsername(username);
+      const admin = await AdminModel.findByUsername(username);
 
       if (!admin) {
         return res.status(401).json({ success: false, message: 'Username atau password salah' });

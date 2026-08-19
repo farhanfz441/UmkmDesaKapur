@@ -1,60 +1,60 @@
-const { readDb, writeDb, nextId } = require('../config/jsonDb');
+const { query } = require('../config/db');
 
 const KategoriModel = {
-  findAll() {
-    const db = readDb();
-    return [...db.kategori].sort((a, b) => a.nama.localeCompare(b.nama));
+  async findAll() {
+    const { rows } = await query('SELECT * FROM kategori ORDER BY nama ASC');
+    return rows;
   },
 
-  findById(id) {
-    const db = readDb();
-    return db.kategori.find((k) => k.id === Number(id)) || null;
+  async findById(id) {
+    const { rows } = await query('SELECT * FROM kategori WHERE id = $1', [Number(id)]);
+    return rows[0] || null;
   },
 
-  findByNama(nama) {
-    const db = readDb();
-    return db.kategori.find((k) => k.nama === nama) || null;
+  async findByNama(nama) {
+    const { rows } = await query('SELECT * FROM kategori WHERE nama = $1', [nama]);
+    return rows[0] || null;
   },
 
-  create({ nama, ikon, warna }) {
-    const db = readDb();
-    if (db.kategori.some((k) => k.nama === nama)) {
-      throw new Error('UNIQUE constraint failed: kategori.nama');
+  async create({ nama, ikon, warna }) {
+    try {
+      const { rows } = await query(
+        'INSERT INTO kategori (nama, ikon, warna) VALUES ($1, $2, $3) RETURNING *',
+        [nama, ikon || 'store', warna || '#7c6dff']
+      );
+      return rows[0];
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new Error('UNIQUE constraint failed: kategori.nama');
+      }
+      throw err;
     }
-    const item = {
-      id: nextId(db, 'kategori'),
-      nama,
-      ikon: ikon || 'store',
-      warna: warna || '#7c6dff',
-    };
-    db.kategori.push(item);
-    writeDb(db);
-    return item;
   },
 
-  update(id, { nama, ikon, warna }) {
-    const db = readDb();
-    const idx = db.kategori.findIndex((k) => k.id === Number(id));
-    if (idx === -1) return null;
-    if (nama && db.kategori.some((k) => k.nama === nama && k.id !== Number(id))) {
-      throw new Error('UNIQUE constraint failed: kategori.nama');
+  async update(id, { nama, ikon, warna }) {
+    const existing = await this.findById(id);
+    if (!existing) return null;
+    try {
+      const { rows } = await query(
+        'UPDATE kategori SET nama = $1, ikon = $2, warna = $3 WHERE id = $4 RETURNING *',
+        [nama || existing.nama, ikon || existing.ikon, warna || existing.warna, Number(id)]
+      );
+      return rows[0];
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new Error('UNIQUE constraint failed: kategori.nama');
+      }
+      throw err;
     }
-    const existing = db.kategori[idx];
-    db.kategori[idx] = { ...existing, nama: nama || existing.nama, ikon: ikon || existing.ikon, warna: warna || existing.warna };
-    writeDb(db);
-    return db.kategori[idx];
   },
 
-  remove(id) {
-    const db = readDb();
-    const idx = db.kategori.findIndex((k) => k.id === Number(id));
-    if (idx === -1) return false;
-    if (db.umkm.some((u) => u.kategori_id === Number(id))) {
+  async remove(id) {
+    const { rows: umkmRows } = await query('SELECT id FROM umkm WHERE kategori_id = $1 LIMIT 1', [Number(id)]);
+    if (umkmRows.length > 0) {
       throw new Error('Kategori masih memiliki UMKM');
     }
-    db.kategori.splice(idx, 1);
-    writeDb(db);
-    return true;
+    const { rowCount } = await query('DELETE FROM kategori WHERE id = $1', [Number(id)]);
+    return rowCount > 0;
   },
 };
 

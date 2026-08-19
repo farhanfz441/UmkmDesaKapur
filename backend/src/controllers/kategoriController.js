@@ -1,22 +1,22 @@
 const KategoriModel = require('../models/kategoriModel');
 
 const KategoriController = {
-  getAll(req, res, next) {
+  async getAll(req, res, next) {
     try {
-      const data = KategoriModel.findAll();
+      const data = await KategoriModel.findAll();
       res.json({ success: true, count: data.length, data });
     } catch (err) {
       next(err);
     }
   },
 
-  create(req, res, next) {
+  async create(req, res, next) {
     try {
       const { nama, ikon, warna } = req.body;
       if (!nama) {
         return res.status(422).json({ success: false, message: 'Nama kategori wajib diisi' });
       }
-      const created = KategoriModel.create({ nama, ikon, warna });
+      const created = await KategoriModel.create({ nama, ikon, warna });
       res.status(201).json({ success: true, message: 'Kategori berhasil ditambahkan', data: created });
     } catch (err) {
       if (err.message.includes('UNIQUE constraint failed')) {
@@ -26,10 +26,10 @@ const KategoriController = {
     }
   },
 
-  update(req, res, next) {
+  async update(req, res, next) {
     try {
       const { nama, ikon, warna } = req.body;
-      const updated = KategoriModel.update(req.params.id, { nama, ikon, warna });
+      const updated = await KategoriModel.update(req.params.id, { nama, ikon, warna });
       if (!updated) return res.status(404).json({ success: false, message: 'Kategori tidak ditemukan' });
       res.json({ success: true, message: 'Kategori berhasil diperbarui', data: updated });
     } catch (err) {
@@ -40,9 +40,9 @@ const KategoriController = {
     }
   },
 
-  remove(req, res, next) {
+  async remove(req, res, next) {
     try {
-      const deleted = KategoriModel.remove(req.params.id);
+      const deleted = await KategoriModel.remove(req.params.id);
       if (!deleted) return res.status(404).json({ success: false, message: 'Kategori tidak ditemukan' });
       res.json({ success: true, message: 'Kategori berhasil dihapus' });
     } catch (err) {

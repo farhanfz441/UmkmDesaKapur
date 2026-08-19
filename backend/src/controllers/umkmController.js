@@ -4,10 +4,10 @@ const KategoriModel = require('../models/kategoriModel');
 const { haversineDistance } = require('../utils/haversine');
 
 const UmkmController = {
-  getAll(req, res, next) {
+  async getAll(req, res, next) {
     try {
       const { kategori_id, status, search, lat, lng, radius } = req.query;
-      let data = UmkmModel.findAll({ kategori_id, status, search });
+      let data = await UmkmModel.findAll({ kategori_id, status, search });
 
       // Filter berdasarkan radius jika koordinat pengguna dikirim
       if (lat && lng) {
@@ -32,9 +32,9 @@ const UmkmController = {
     }
   },
 
-  getById(req, res, next) {
+  async getById(req, res, next) {
     try {
-      const item = UmkmModel.findById(req.params.id);
+      const item = await UmkmModel.findById(req.params.id);
       if (!item) {
         return res.status(404).json({ success: false, message: 'UMKM tidak ditemukan' });
       }
@@ -44,33 +44,33 @@ const UmkmController = {
     }
   },
 
-  create(req, res, next) {
+  async create(req, res, next) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
 
-      const kategori = KategoriModel.findById(req.body.kategori_id);
+      const kategori = await KategoriModel.findById(req.body.kategori_id);
       if (!kategori) {
         return res.status(400).json({ success: false, message: 'Kategori tidak valid' });
       }
 
-      const created = UmkmModel.create(req.body);
+      const created = await UmkmModel.create(req.body);
       res.status(201).json({ success: true, message: 'UMKM berhasil ditambahkan', data: created });
     } catch (err) {
       next(err);
     }
   },
 
-  update(req, res, next) {
+  async update(req, res, next) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
 
-      const updated = UmkmModel.update(req.params.id, req.body);
+      const updated = await UmkmModel.update(req.params.id, req.body);
       if (!updated) {
         return res.status(404).json({ success: false, message: 'UMKM tidak ditemukan' });
       }
@@ -80,9 +80,9 @@ const UmkmController = {
     }
   },
 
-  remove(req, res, next) {
+  async remove(req, res, next) {
     try {
-      const deleted = UmkmModel.remove(req.params.id);
+      const deleted = await UmkmModel.remove(req.params.id);
       if (!deleted) {
         return res.status(404).json({ success: false, message: 'UMKM tidak ditemukan' });
       }
